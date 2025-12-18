@@ -1,72 +1,87 @@
 import 'package:flutter/material.dart';
-import 'package:receipe/Model/receipe.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'receipe_detail.dart';
+import 'Model/receipe.dart';
 
 void main() {
-  runApp(const receipeApp());
+  runApp(const MyApp());
 }
 
-class receipeApp extends StatelessWidget {
-  const receipeApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'receipeApp Demo',
+      title: 'Recipe App',
       theme: ThemeData(
-        appBarTheme: const AppBarTheme(
-          centerTitle: true,
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.black,
-        ),
+        primarySwatch: Colors.orange,
+        useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Receipe Calculator'),
+      home: const RecipeListPage(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+class RecipeListPage extends StatelessWidget {
+  const RecipeListPage({super.key});
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.title)),
-      body: SafeArea(
-        child: ListView.builder(
-          itemCount: receipe.samples.length,
-          itemBuilder: (context, index) {
-            return buildRecipeCard(receipe.samples[index]);
-          },
-        ),
+      appBar: AppBar(
+        title: const Text('Recipes'),
+        centerTitle: true,
+      ),
+      body: ListView.builder(
+        // ใช้จำนวนรายการจาก Model Recipe
+        itemCount: Recipe.samples.length,
+        itemBuilder: (context, index) {
+          final recipe = Recipe.samples[index];
+
+          // ใช้ GestureDetector เพื่อตรวจจับการแตะเพื่อเปลี่ยนหน้า
+          return GestureDetector(
+            onTap: () {
+              // ใช้ Navigator เพื่อ push ไปยังหน้า RecipeDetail พร้อมส่งข้อมูล recipe
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RecipeDetail(recipe: recipe),
+                ),
+              );
+            },
+            // ใช้ Card เพื่อความสวยงามและกำหนดค่า elevation
+            child: Card(
+              elevation: 2.0, // กำหนดเงาของการ์ดตามสไลด์
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10.0), // กำหนดมุมโค้ง 10.0
+              ),
+              margin: const EdgeInsets.all(12),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0), // กำหนด Padding รอบเนื้อหา
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // แสดงรูปภาพจาก assets
+                    Image.asset(recipe.imageUrl),
+                    // SizedBox สำหรับเว้นระยะห่างระหว่างรูปกับข้อความ
+                    const SizedBox(height: 14.0),
+                    // แสดงชื่อเมนูพร้อมปรับแต่งฟอนต์ด้วย Google Fonts
+                    Text(
+                      recipe.imgLabel,
+                      style: GoogleFonts.kanit(
+                        // เลือกใช้ฟอนต์ Kanit ตามตัวอย่าง
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.w700, // กำหนดความหนา w700
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
-}
-
-Widget buildRecipeCard(receipe recipe) {
-  return Card(
-    child: Column(
-      children: <Widget>[
-        Image(image: AssetImage(recipe.imageUrl)),
-        Text(recipe.imgLable),
-      ],
-    ),
-  );
 }
